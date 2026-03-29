@@ -9,46 +9,20 @@ export async function GET(request) {
   const url = new URL(request.url)
   const mode = url.searchParams.get('mode') || 'all'
   const limit = parseInt(url.searchParams.get('limit')) || 20
+  const docId = url.searchParams.get('doc')
 
   let query = supabase.from('qbank_questions').select('*, qbank_attempts(is_correct)')
     .eq('user_id', user.id)
+
+  if (docId) {
+    query = query.eq('document_id', docId)
+  }
 
   const { data: qbankData, error } = await query
 
   if (error || !qbankData) return Response.json({ questions: [] })
 
-  // Smart filtering based on mode
-  let finalQuestions = []
-  
-  if (mode === 'daily') {
-    // 40% weak (previously answered incorrectly)
-    // 40% untested (never answered)
-    // 20% random review (answered correctly)
-    const weak = qbankData.filter(q => q.qbank_attempts?.some(a => a.is_correct === false))
-    const untested = qbankData.filter(q => !q.qbank_attempts || q.qbank_attempts.length === 0)
-    const review = qbankData.filter(q => q.qbank_attempts?.some(a => a.is_correct === true))
-
-    // Shuffle arrays
-    const shuffle = arr => arr.sort(() => 0.5 - Math.random())
-    finalQuestions = [
-      ...shuffle(weak).slice(0, Math.floor(limit * 0.4)),
-      ...shuffle(untested).slice(0, Math.floor(limit * 0.4)),
-      ...shuffle(review).slice(0, Math.ceil(limit * 0.2))
-    ]
-    
-    // Fill remaining if shortages exist
-    if (finalQuestions.length < limit) {
-      const remaining = shuffle([...untested, ...weak, ...review]).filter(q => !finalQuestions.includes(q))
-      finalQuestions = [...finalQuestions, ...remaining.slice(0, limit - finalQuestions.length)]
-    }
-    
-    finalQuestions = shuffle(finalQuestions)
-  } else {
-    // Standard mode: prefer untested, random order
-    finalQuestions = qbankData.sort(() => 0.5 - Math.random()).slice(0, limit)
-  }
-
-  // Remove the nested tracking data before sending to client
+  let finalQuestions = qbankData.sort(() => 0.5 - Math.random()).slice(0, limit)
   const output = finalQuestions.map(({ qbank_attempts, ...rest }) => rest)
 
   return Response.json({ questions: output })

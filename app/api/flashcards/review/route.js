@@ -6,8 +6,18 @@ export async function GET(request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  const { data } = await supabase.from('flashcards').select('*,documents(title)')
-    .eq('user_id', user.id).lte('next_review_at', new Date().toISOString()).order('next_review_at').limit(50)
+  
+  const url = new URL(request.url)
+  const docId = url.searchParams.get('doc')
+  
+  let query = supabase.from('flashcards').select('*,documents(title)')
+    .eq('user_id', user.id).lte('next_review_at', new Date().toISOString())
+  
+  if (docId) {
+    query = query.eq('document_id', docId)
+  }
+  
+  const { data } = await query.order('next_review_at').limit(50)
   return Response.json({ cards: data || [] })
 }
 

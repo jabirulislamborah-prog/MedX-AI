@@ -20,35 +20,54 @@ export default function TutorPage() {
     setMessages(m=>[...m, { role:'user', content:userMsg }])
     setLoading(true)
 
-    const res = await fetch('/api/chat', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ message:userMsg, conversation_id:convId })
-    })
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ message:userMsg, conversation_id:convId })
+      })
 
-    if (!convId) {
-      const cid = res.headers.get('X-Conversation-Id')
-      if (cid) setConvId(cid)
-    }
-
-    const reader = res.body.getReader()
-    const decoder = new TextDecoder()
-    let assistantMsg = ''
-    setMessages(m=>[...m, { role:'assistant', content:'' }])
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      const text = decoder.decode(value)
-      const lines = text.split('\n').filter(l=>l.startsWith('data:'))
-      for (const line of lines) {
-        const data = line.replace('data: ','').trim()
-        if (data==='[DONE]') break
-        try {
-          const { text: chunk } = JSON.parse(data)
-          assistantMsg += chunk
-          setMessages(m=>[...m.slice(0,-1), { role:'assistant', content:assistantMsg }])
-        } catch {}
+      if (!res.ok) {
+        throw new Error('Failed to connect to AI')
       }
+
+      if (!convId) {
+        const cid = res.headers.get('X-Conversation-Id')
+        if (cid) setConvId(cid)
+      }
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let assistantMsg = ''
+      setMessages(m=>[...m, { role:'assistant', content:'' }])
+
+      let buffer = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        
+        // Keep the last incomplete line in the buffer
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.substring(6).trim()
+            if (data === '[DONE]') break
+            try {
+              const { text: chunk } = JSON.parse(data)
+              assistantMsg += chunk
+              setMessages(m=>[...m.slice(0,-1), { role:'assistant', content:assistantMsg }])
+            } catch (err) {
+              console.error('Failed to parse SSE chunk:', data, err)
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Chat error:', e)
+      setMessages(m=>[...m, { role:'assistant', content:'I apologize, but I encountered an error processing your request. This could be due to rate limits or a temporary service issue. Please try again in a moment.' }])
     }
     setLoading(false)
   }

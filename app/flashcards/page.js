@@ -34,11 +34,12 @@ export default function FlashcardsPage() {
   return (
     <div style={{display:'flex'}}>
       <Sidebar />
-      <main className="main-content" style={{padding:'32px'}}>
-        <div style={{marginBottom:32}}>
-          <h1 style={{fontSize:'1.8rem',marginBottom:4}}>🃏 Flashcard Review</h1>
-          <p style={{color:'#A29BCC'}}>Spaced repetition — study smarter, not longer</p>
-        </div>
+      <main className="main-content" style={{padding:'16px',paddingTop:'72px'}}>
+        <div style={{maxWidth:640,margin:'0 auto'}}>
+          <div style={{marginBottom:24}}>
+            <h1 style={{fontSize:'1.6rem',marginBottom:4}}>🃏 Flashcard Review</h1>
+            <p style={{color:'#A29BCC',fontSize:'0.88rem'}}>Spaced repetition — study smarter</p>
+          </div>
 
         {loading && <div style={{textAlign:'center',padding:80,color:'#A29BCC'}}>Loading cards...</div>}
 
@@ -106,8 +107,9 @@ export default function FlashcardsPage() {
                 <button className="btn btn-ghost btn-sm" onClick={()=>setFlipped(true)}>Tap card or click to reveal →</button>
               </div>
             )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )

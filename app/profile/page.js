@@ -12,9 +12,11 @@ export default async function ProfilePage() {
   const { count: flashcardCount } = await supabase.from('flashcards').select('*', { count: 'exact', head: true }).eq('user_id', user.id)
   const { count: attemptCount } = await supabase.from('qbank_attempts').select('*', { count: 'exact', head: true }).eq('user_id', user.id)
 
+  const safeProfile = profile ? { full_name: profile.full_name || null, xp: profile.xp || 0, level: profile.level || 1, streak_days: profile.streak_days || 0 } : null
+
   return (
     <div style={{display:'flex'}}>
-      <Sidebar profile={profile} />
+      <Sidebar profile={safeProfile} />
       <main className="main-content" style={{padding:'32px'}}>
         <div style={{maxWidth:800, margin:'0 auto'}}>
           <div style={{marginBottom:32}}>

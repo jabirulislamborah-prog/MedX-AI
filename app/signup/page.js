@@ -16,12 +16,21 @@ export default function SignupPage() {
     const supabase = createClient()
     const { data, error } = await supabase.auth.signUp({
       email: form.email, password: form.password,
-      options: { data: { full_name: form.name } }
+      options: {
+        data: { full_name: form.name },
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
     })
     if (error) { setError(error.message); setLoading(false); return }
     if (data.user) {
-      await supabase.from('profiles').upsert({ id: data.user.id, full_name: form.name, xp: 0, streak_days: 0, level: 1 })
-      router.push('/dashboard'); router.refresh()
+      // If email confirmation is required, show a message
+      if (!data.session) {
+        setError('✅ Check your email to confirm your account!')
+        setLoading(false)
+        return
+      }
+      await supabase.from('profiles').upsert({ id: data.user.id, full_name: form.name, xp: 0, streak_days: 0, level: 1, onboarding_complete: false })
+      router.push('/onboarding'); router.refresh()
     }
     setLoading(false)
   }
@@ -69,7 +78,7 @@ export default function SignupPage() {
               <label className="input-label">Password</label>
               <input id="password" type="password" className="input" placeholder="Min 8 characters" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required minLength={8} />
             </div>
-            {error && <div style={{background:'rgba(255,107,107,0.1)',border:'1px solid rgba(255,107,107,0.3)',borderRadius:8,padding:'10px 14px',color:'#FF6B6B',fontSize:'0.88rem'}}>{error}</div>}
+            {error && <div style={{background: error.startsWith('✅') ? 'rgba(0,210,160,0.1)' : 'rgba(255,107,107,0.1)',border:`1px solid ${error.startsWith('✅') ? 'rgba(0,210,160,0.3)' : 'rgba(255,107,107,0.3)'}`,borderRadius:8,padding:'10px 14px',color: error.startsWith('✅') ? '#00D2A0' : '#FF6B6B',fontSize:'0.88rem'}}>{error}</div>}
             <button type="submit" className="btn btn-secondary" disabled={loading} style={{width:'100%',padding:'14px'}}>
               {loading ? '⟳ Creating...' : '🚀 Create Free Account'}
             </button>

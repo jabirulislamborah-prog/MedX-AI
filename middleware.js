@@ -1,71 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
-// Rate limiting configuration
-const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 100
-
-// Rate limit store (in production, use Redis or similar)
-const rateLimitStore = new Map()
-
-function getClientIP(request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
-    || request.headers.get('x-real-ip')
-    || 'unknown'
-}
-
-function isRateLimited(clientIP) {
-  const now = Date.now()
-  const windowStart = now - RATE_LIMIT_WINDOW
-  
-  // Clean old entries
-  for (const [ip, timestamps] of rateLimitStore.entries()) {
-    const recent = timestamps.filter(ts => ts > windowStart)
-    if (recent.length === 0) {
-      rateLimitStore.delete(ip)
-    } else {
-      rateLimitStore.set(ip, recent)
-    }
-  }
-  
-  // Check current IP
-  const timestamps = rateLimitStore.get(clientIP) || []
-  const recentRequests = timestamps.filter(ts => ts > windowStart)
-  
-  if (recentRequests.length >= RATE_LIMIT_MAX_REQUESTS) {
-    return true
-  }
-  
-  // Add current request
-  recentRequests.push(now)
-  rateLimitStore.set(clientIP, recentRequests)
-  return false
-}
-
 export async function middleware(request) {
-  const clientIP = getClientIP(request)
-  
-  // Skip rate limiting for static files and public assets
   const pathname = request.nextUrl.pathname
-  const isStaticFile = pathname.match(/\/_next\/static|\.(js|css|woff|woff2|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)$/)
-  
-  if (!isStaticFile) {
-    // Rate limiting check
-    if (isRateLimited(clientIP)) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { 
-          status: 429,
-          headers: {
-            'Retry-After': '60',
-            'X-RateLimit-Limit': String(RATE_LIMIT_MAX_REQUESTS),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': String(Date.now() + RATE_LIMIT_WINDOW)
-          }
-        }
-      )
-    }
-  }
 
   let supabaseResponse = NextResponse.next({ request })
 
@@ -74,85 +11,76 @@ export async function middleware(request) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
-        getAll() { return request.cookies.getAll() },
+        getAll() {
+          return request.cookies.getAll()
+        },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            // Secure cookie options
-            const secureOptions = {
-              ...options,
-              httpOnly: true,
-              secure: process.env.NODE_ENV === 'production',
-              sameSite: 'lax',
-              path: '/',
-              maxAge: options.maxAge || (7 * 24 * 60 * 60) // 7 days default
-            }
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
-            supabaseResponse.cookies.set(name, value, secureOptions)
-          })
+          )
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
         },
       },
     }
   )
 
-  // Refresh session if needed
-  const { data: { session }, error: refreshError } = await supabase.auth.getSession()
-  
-  if (refreshError) {
-    console.error('[Middleware] Session refresh error:', refreshError.message)
-  }
+  // IMPORTANT: Do NOT run any code between createServerClient and
+  // auth.getUser(). A simple mistake could make it very hard to debug
+  // issues with users being randomly logged out.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // Public paths that don't require authentication
+  // Public paths — no auth required
   const publicPaths = [
-    '/login', 
-    '/signup', 
-    '/', 
-    '/simulate', 
-    '/onboarding', 
+    '/login',
+    '/signup',
+    '/',
+    '/simulate',
+    '/onboarding',
     '/auth/callback',
     '/api/auth',
     '/api/paypal',
-    '/api/razorpay'
+    '/api/razorpay',
+    '/pricing',
+    '/forgot-password',
   ]
-  
-  // Check if path is public
-  const isPublic = publicPaths.some(path => pathname === path || pathname.startsWith(path + '/'))
-  
-  // API rate limiting bypass for public APIs
-  const isPublicAPI = pathname.startsWith('/api/paypal') || pathname.startsWith('/api/razorpay')
 
-  if (!user && !isPublic && !isPublicAPI) {
-    // Log unauthorized access attempt
-    console.log('[Middleware] Unauthorized access attempt to:', pathname, 'from IP:', clientIP)
-    return NextResponse.redirect(new URL('/login', request.url))
+  const isPublic = publicPaths.some(
+    (path) => pathname === path || pathname.startsWith(path + '/')
+  )
+
+  // Redirect unauthenticated users to login
+  if (!user && !isPublic) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
-  
-  // Redirect logged-in users away from auth pages
+
+  // Redirect authenticated users away from auth pages
   if (user && (pathname === '/login' || pathname === '/signup')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
   }
 
-  // Add security headers to response
-  supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff')
-  supabaseResponse.headers.set('X-Frame-Options', 'DENY')
-  supabaseResponse.headers.set('X-XSS-Protection', '1; mode=block')
-  supabaseResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  supabaseResponse.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()')
-  supabaseResponse.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
-
+  // IMPORTANT: Return supabaseResponse (not a new NextResponse) so that
+  // the session cookie is properly forwarded.
   return supabaseResponse
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except:
      * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public directory)
+     * - _next/image (image optimization)
+     * - favicon.ico
+     * - public images
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
-  ]
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

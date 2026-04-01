@@ -70,8 +70,7 @@ export default function SignupPage() {
         level: 1,
         onboarding_complete: false
       })
-      router.push('/onboarding')
-      router.refresh()
+      window.location.href = '/onboarding'
     }
     setLoading(false)
   }

@@ -30,8 +30,7 @@ export default function LoginPage() {
       }
       
       if (data?.session) {
-        router.push('/dashboard')
-        router.refresh()
+        window.location.href = '/dashboard'
       } else {
         setError('Please check your email to verify your account')
         setLoading(false)

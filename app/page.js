@@ -2,13 +2,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export const metadata = {
-  title: 'MedX AI — Your PDF → Board-Ready in 60 Seconds',
-  description: 'Upload any medical PDF. MedX AI instantly generates USMLE-style questions, spaced repetition flashcards, and a Socratic AI tutor from YOUR exact material. Built for med students who actually want to pass.',
+  title: 'MedDrill — Your PDF → Board-Ready in 60 Seconds',
+  description: 'Upload any medical PDF. MedDrill instantly generates USMLE-style questions, spaced repetition flashcards, and a Socratic AI tutor from YOUR exact material. Built for med students who actually want to pass.',
   openGraph: {
-    title: 'MedX AI — The AI Study Engine for Medical Students',
-    description: 'Stop building Anki cards for 10 hours. MedX AI converts your professor\'s PDF into a complete gamified study system in 60 seconds.',
+    title: 'MedDrill — The AI Study Engine for Medical Students',
+    description: 'Stop building Anki cards for 10 hours. MedDrill converts your professor\'s PDF into a complete gamified study system in 60 seconds.',
     url: 'https://med-x-ai-eight.vercel.app',
-    siteName: 'MedX AI',
+    siteName: 'MedDrill',
     type: 'website',
   },
 }
@@ -21,9 +21,9 @@ export default function LandingPage() {
       <div style={{
         position:'fixed',inset:0,pointerEvents:'none',zIndex:0,
         background:`
-          radial-gradient(ellipse 80% 50% at 50% -20%, rgba(108,92,231,0.15) 0%, transparent 60%),
-          radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,210,160,0.06) 0%, transparent 50%),
-          radial-gradient(ellipse 50% 30% at 20% 60%, rgba(108,92,231,0.06) 0%, transparent 50%)
+          radial-gradient(ellipse 80% 50% at 50% -20%, rgba(30,64,175,0.2) 0%, transparent 60%),
+          radial-gradient(ellipse 60% 40% at 80% 80%, rgba(13,148,136,0.08) 0%, transparent 50%),
+          radial-gradient(ellipse 50% 30% at 20% 60%, rgba(30,64,175,0.08) 0%, transparent 50%)
         `
       }} />
 
@@ -39,11 +39,11 @@ export default function LandingPage() {
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <div style={{
             width:32,height:32,
-            background:'linear-gradient(135deg,#6C5CE7,#00D2A0)',
+            background:'linear-gradient(135deg,#1E40AF,#0D9488)',
             borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',
-            fontSize:'1rem',boxShadow:'0 0 20px rgba(108,92,231,0.4)'
+            fontSize:'1rem',boxShadow:'0 0 20px rgba(30,64,175,0.4)'
           }}>⚕️</div>
-          <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.1rem',letterSpacing:'-0.02em'}}>MedX AI</span>
+          <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.1rem',letterSpacing:'-0.02em'}}>MedDrill</span>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <Link href="/login" style={{padding:'8px 18px',borderRadius:999,fontSize:'0.875rem',fontWeight:500,color:'rgba(240,238,255,0.7)',transition:'color 0.2s'}}>Log In</Link>
@@ -84,7 +84,7 @@ export default function LandingPage() {
         }}>
           Your professor's PDF →{' '}
           <span style={{
-            background:'linear-gradient(135deg,#8B7CF6,#00D2A0)',
+            background:'linear-gradient(135deg,#3B82F6,#0D9488)',
             WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'
           }}>Board-ready in 60 seconds.</span>
         </h1>
@@ -95,7 +95,7 @@ export default function LandingPage() {
           fontSize:'1.2rem',lineHeight:1.7,
           color:'rgba(162,155,204,0.9)',fontWeight:400
         }}>
-          Upload any medical PDF. MedX AI instantly generates USMLE-style vignettes, spaced repetition flashcards, and a Socratic AI tutor — all from <em>your exact material</em>. No other platform does this.
+          Upload any medical PDF. MedDrill instantly generates USMLE-style vignettes, spaced repetition flashcards, and a Socratic AI tutor — all from <em>your exact material</em>. No other platform does this.
         </p>
 
         {/* CTAs */}
@@ -126,7 +126,7 @@ export default function LandingPage() {
           </div>
           <Image
             src="/assets/hero-dashboard.png"
-            alt="MedX AI Dashboard — Generate USMLE Questions from Your PDFs"
+            alt="MedDrill Dashboard — Generate USMLE Questions from Your PDFs"
             width={1000} height={580} priority
             style={{display:'block',width:'100%',height:'auto',opacity:0.95}}
           />
@@ -355,7 +355,7 @@ export default function LandingPage() {
               fontSize:'0.75rem',fontWeight:700,color:'#FF6B6B',letterSpacing:'0.08em',textTransform:'uppercase'
             }}>The Honest Comparison</div>
             <h2 style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:800,letterSpacing:'-0.03em',marginBottom:16,fontFamily:"'Space Grotesk',sans-serif"}}>
-              Why med students are leaving<br/><span style={{color:'#FF6B6B'}}>UWorld, BnB & Anki</span> for MedX AI.
+              Why med students are leaving<br/><span style={{color:'#FF6B6B'}}>UWorld, BnB & Anki</span> for MedDrill.
             </h2>
             <p style={{color:'rgba(162,155,204,0.8)',fontSize:'1.05rem',maxWidth:520,margin:'0 auto'}}>Not a fair fight. But it's an honest one.</p>
           </div>
@@ -366,7 +366,7 @@ export default function LandingPage() {
                 <tr style={{background:'rgba(0,0,0,0.3)'}}>
                   <th style={{padding:'20px 28px',textAlign:'left',fontFamily:"'Space Grotesk',sans-serif",fontWeight:600,fontSize:'0.85rem',color:'rgba(162,155,204,0.7)',letterSpacing:'0.04em',textTransform:'uppercase',width:'30%',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>Feature</th>
                   <th style={{padding:'20px 28px',textAlign:'left',fontWeight:600,fontSize:'0.9rem',color:'#FF6B6B',borderBottom:'1px solid rgba(255,255,255,0.05)',width:'35%',borderRight:'1px solid rgba(255,255,255,0.04)'}}>UWorld / BnB / Anki</th>
-                  <th style={{padding:'20px 28px',textAlign:'left',fontWeight:700,fontSize:'1rem',color:'#00D2A0',borderBottom:'1px solid rgba(255,255,255,0.05)',width:'35%',background:'rgba(0,210,160,0.04)'}}>🚀 MedX AI</th>
+                  <th style={{padding:'20px 28px',textAlign:'left',fontWeight:700,fontSize:'1rem',color:'#00D2A0',borderBottom:'1px solid rgba(255,255,255,0.05)',width:'35%',background:'rgba(0,210,160,0.04)'}}>🚀 MedDrill</th>
                 </tr>
               </thead>
               <tbody>
@@ -442,7 +442,7 @@ export default function LandingPage() {
                 accent:'#8B7CF6'
               },
               {
-                quote:'As an IMG, I had zero study group. MedX AI became my tutor, my flashcard system, and my QBank. Passed Step 1 with a 234. Nothing else comes close for personalized prep.',
+                quote:'As an IMG, I had zero study group. MedDrill became my tutor, my flashcard system, and my QBank. Passed Step 1 with a 234. Nothing else comes close for personalized prep.',
                 name:'A. Hassan', role:'IMG · USMLE Step 1 Candidate',
                 accent:'#00D2A0'
               },
@@ -514,7 +514,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div style={{flexShrink:0,textAlign:'center'}}>
-                <div style={{fontSize:'0.85rem',color:'rgba(107,100,144,0.7)',fontWeight:600,letterSpacing:'0.04em',textTransform:'uppercase',marginBottom:8}}>MedX AI Pro</div>
+                <div style={{fontSize:'0.85rem',color:'rgba(107,100,144,0.7)',fontWeight:600,letterSpacing:'0.04em',textTransform:'uppercase',marginBottom:8}}>MedDrill Pro</div>
                 <div style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:'4rem',fontWeight:800,color:'#F0EEFF',letterSpacing:'-0.05em',lineHeight:1}}>$19<span style={{fontSize:'1.2rem',color:'rgba(162,155,204,0.7)',fontWeight:500}}>/mo</span></div>
                 <div style={{fontSize:'0.85rem',color:'rgba(107,100,144,0.7)',marginBottom:24}}>or $149/yr · Save 35%</div>
                 <Link href="/signup" style={{
@@ -576,15 +576,15 @@ export default function LandingPage() {
               {[
                 {
                   q:'Is this HIPAA compliant? Can I upload patient cases?',
-                  a:'Do NOT upload real patient data. MedX AI is a study tool for educational materials only — textbook chapters, lecture slides, and study guides. Your educational PDFs are processed and not shared with third parties.'
+                  a:'Do NOT upload real patient data. MedDrill is a study tool for educational materials only — textbook chapters, lecture slides, and study guides. Your educational PDFs are processed and not shared with third parties.'
                 },
                 {
                   q:'What if UWorld is still the "gold standard" for USMLE?',
-                  a:'UWorld is excellent for its question quality. MedX AI is not a replacement for doing UWorld — it\'s what replaces Anki, Boards & Beyond, and your manual card creation workflow. Use both. But spend your prep time drilling, not making cards.'
+                  a:'UWorld is excellent for its question quality. MedDrill is not a replacement for doing UWorld — it\'s what replaces Anki, Boards & Beyond, and your manual card creation workflow. Use both. But spend your prep time drilling, not making cards.'
                 },
                 {
                   q:'Can I use this for PLAB, NEET-PG, or other exams?',
-                  a:'Yes. Because you upload YOUR OWN material, MedX AI works for any medical exam. The AI generates questions based on your specific PDF content, not a fixed curriculum.'
+                  a:'Yes. Because you upload YOUR OWN material, MedDrill works for any medical exam. The AI generates questions based on your specific PDF content, not a fixed curriculum.'
                 },
                 {
                   q:'How accurate are the AI-generated questions?',
@@ -611,7 +611,7 @@ export default function LandingPage() {
       }}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <div style={{width:24,height:24,background:'linear-gradient(135deg,#6C5CE7,#00D2A0)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.7rem'}}>⚕️</div>
-          <span style={{fontWeight:600,color:'rgba(162,155,204,0.6)'}}>MedX AI (MedDrill)</span>
+          <span style={{fontWeight:600,color:'rgba(162,155,204,0.6)'}}>MedDrill</span>
         </div>
         <div>© 2026 · Not for clinical use · Built for medical students, by medical students.</div>
         <div style={{display:'flex',gap:20}}>

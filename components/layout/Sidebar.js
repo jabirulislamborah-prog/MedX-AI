@@ -42,22 +42,22 @@ export default function Sidebar({ profile }) {
     router.push('/login'); router.refresh()
   }
 
-  const streakColor = streak >= 30 ? '#FF4500' : streak >= 7 ? '#FF6B35' : '#FDCB6E'
+  const streakColor = streak >= 30 ? '#EF4444' : streak >= 7 ? '#F59E0B' : '#F59E0B'
   const streakGlow = streak >= 7 ? `0 0 20px ${streakColor}40` : 'none'
 
   return (
     <>
       {/* ── MOBILE HEADER (Visible only on <768px) ── */}
       <div className="show-on-mobile" style={{
-        position:'fixed', top:0, left:0, right:0, height:60, background:'rgba(15,10,26,0.9)', backdropFilter:'blur(12px)',
-        borderBottom:'1px solid #2D2654', zIndex:90, display:'flex', alignItems:'center',
+        position:'fixed', top:0, left:0, right:0, height:60, background:'rgba(15,23,42,0.9)', backdropFilter:'blur(12px)',
+        borderBottom:'1px solid #334155', zIndex:90, display:'flex', alignItems:'center',
         justifyContent:'space-between', padding:'0 16px'
       }}>
         <div style={{display:'flex', alignItems:'center', gap:12}}>
-          <button onClick={() => setMobileOpen(true)} style={{background:'transparent', border:'none', color:'#F8F7FF', fontSize:'1.5rem', cursor:'pointer', padding:4}}>
+          <button onClick={() => setMobileOpen(true)} style={{background:'transparent', border:'none', color:'#F8FAFC', fontSize:'1.5rem', cursor:'pointer', padding:4}}>
             ☰
           </button>
-          <div style={{width:28,height:28,background:'linear-gradient(135deg,#6C5CE7,#00D2A0)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.9rem'}}>⚕️</div>
+          <div style={{width:28,height:28,background:'linear-gradient(135deg,#1E40AF,#0D9488)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.9rem'}}>⚕️</div>
         </div>
         <div onClick={() => setShowStreakModal(true)} style={{display:'flex', alignItems:'center', gap:6, background:'rgba(253,203,110,0.1)', padding:'6px 12px', borderRadius:999, border:'1px solid rgba(253,203,110,0.2)', cursor:'pointer'}}>
            <span style={{fontSize:'1.1rem', animation: streak > 0 ? 'pulse 2s infinite' : 'none'}}>🔥</span>
@@ -75,8 +75,8 @@ export default function Sidebar({ profile }) {
       <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-logo">
           <Link href="/dashboard" style={{display:'flex',alignItems:'center',gap:10,color:'inherit',textDecoration:'none'}}>
-            <div style={{width:36,height:36,background:'linear-gradient(135deg,#6C5CE7,#00D2A0)',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0}}>⚕️</div>
-            <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.1rem'}}>MedX AI</span>
+            <div style={{width:36,height:36,background:'linear-gradient(135deg,#1E40AF,#0D9488)',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0}}>⚕️</div>
+            <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.1rem'}}>MedDrill</span>
           </Link>
         </div>
 
@@ -90,7 +90,7 @@ export default function Sidebar({ profile }) {
             background: streak > 0
               ? `linear-gradient(135deg, rgba(${streak>=7?'255,69,0':'253,203,110'},0.15), rgba(${streak>=7?'255,69,0':'253,203,110'},0.05))`
               : 'rgba(255,255,255,0.03)',
-            border:`1.5px solid ${streak > 0 ? streakColor+'55' : '#2D2654'}`,
+            border:`1.5px solid ${streak > 0 ? streakColor+'55' : '#334155'}`,
             boxShadow: streakGlow,
             transition:'all 0.2s',
             position:'relative',overflow:'hidden'

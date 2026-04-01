@@ -1,28 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
-  --primary: #6C5CE7;
-  --primary-light: #8B7CF6;
-  --primary-dark: #5A4BD1;
-  --secondary: #00D2A0;
-  --secondary-light: #00F5BA;
-  --accent: #FDCB6E;
-  --error: #FF6B6B;
-  --warning: #F39C12;
-  --bg: #0F0A1A;
-  --surface: #1A1432;
-  --surface-2: #241E3E;
-  --surface-3: #2D2654;
-  --border: #2D2654;
-  --border-light: #3D3660;
-  --text: #F8F7FF;
-  --text-muted: #A29BCC;
-  --text-dim: #6B6490;
+  --primary: #1E40AF;
+  --primary-light: #3B82F6;
+  --primary-dark: #1E3A8A;
+  --secondary: #0D9488;
+  --secondary-light: #14B8A6;
+  --accent: #F59E0B;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --surface-2: #334155;
+  --surface-3: #475569;
+  --border: #334155;
+  --border-light: #475569;
+  --text: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
   --radius: 12px;
   --radius-lg: 20px;
   --radius-full: 9999px;
-  --shadow: 0 4px 20px rgba(108,92,231,0.15);
-  --shadow-lg: 0 8px 40px rgba(108,92,231,0.25);
+  --shadow: 0 4px 20px rgba(30,64,175,0.15);
+  --shadow-lg: 0 8px 40px rgba(30,64,175,0.25);
   --transition: 0.2s ease;
 }
 
@@ -424,7 +424,7 @@ input, textarea, select { font-family: inherit; }
 
 /* Auth layout */
 .auth-page { min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; padding:24px; }
-.auth-bg { position:absolute; inset:0; background: radial-gradient(ellipse at 20% 50%, rgba(108,92,231,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(0,210,160,0.1) 0%, transparent 50%); pointer-events:none; }
+.auth-bg { position:absolute; inset:0; background: radial-gradient(ellipse at 20% 50%, rgba(30,64,175,0.2) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(13,148,136,0.15) 0%, transparent 50%); pointer-events:none; }
 .auth-card { width:100%; max-width:440px; z-index:1; }
 
 /* Nav sidebar */
@@ -440,7 +440,7 @@ input, textarea, select { font-family: inherit; }
   color:var(--text-muted); font-weight:500; font-size:0.9rem; transition:all var(--transition); cursor:pointer; text-decoration:none;
 }
 .sidebar-item:hover { color:var(--text); background:var(--surface-2); }
-.sidebar-item.active { color:var(--primary-light); background:rgba(108,92,231,0.15); }
+.sidebar-item.active { color:var(--primary-light); background:rgba(30,64,175,0.2); }
 .sidebar-item .icon { width:20px; text-align:center; flex-shrink:0; }
 .sidebar-footer { padding:16px 20px; border-top:1px solid var(--border); }
 

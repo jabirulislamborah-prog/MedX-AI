@@ -13,15 +13,47 @@ export default function SignupPage() {
   async function handleSignup(e) {
     e.preventDefault()
     setLoading(true); setError('')
+    
+    // Client-side validation
+    if (!form.name || form.name.trim().length < 2) {
+      setError('Name must be at least 2 characters')
+      setLoading(false)
+      return
+    }
+    
+    if (!form.email || !form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      setError('Please enter a valid email address')
+      setLoading(false)
+      return
+    }
+    
+    if (!form.password || form.password.length < 8) {
+      setError('Password must be at least 8 characters')
+      setLoading(false)
+      return
+    }
+    
+    // Check for common passwords
+    const commonPasswords = ['password', '12345678', 'qwerty', 'admin', 'letmein']
+    if (commonPasswords.includes(form.password.toLowerCase())) {
+      setError('Password is too common. Please choose a stronger password.')
+      setLoading(false)
+      return
+    }
+    
     const supabase = createClient()
     const { data, error } = await supabase.auth.signUp({
-      email: form.email, password: form.password,
+      email: form.email.toLowerCase().trim(), password: form.password,
       options: {
-        data: { full_name: form.name },
+        data: { full_name: form.name.trim() },
         emailRedirectTo: `${window.location.origin}/auth/callback`
       }
     })
-    if (error) { setError(error.message); setLoading(false); return }
+    if (error) { 
+      // Generic error message for security
+      setError(error.message.includes('already') ? 'An account with this email already exists' : 'Unable to create account. Please try again.')
+      setLoading(false); return 
+    }
     if (data.user) {
       // If email confirmation is required, show a message
       if (!data.session) {
@@ -29,7 +61,7 @@ export default function SignupPage() {
         setLoading(false)
         return
       }
-      await supabase.from('profiles').upsert({ id: data.user.id, full_name: form.name, xp: 0, streak_days: 0, level: 1, onboarding_complete: false })
+      await supabase.from('profiles').upsert({ id: data.user.id, full_name: form.name.trim(), xp: 0, streak_days: 0, level: 1, onboarding_complete: false })
       router.push('/onboarding'); router.refresh()
     }
     setLoading(false)
@@ -41,16 +73,16 @@ export default function SignupPage() {
       <div className="auth-card animate-fade-up">
         <div style={{textAlign:'center',marginBottom:32}}>
           <Link href="/" style={{display:'inline-flex',alignItems:'center',gap:10,marginBottom:24,color:'inherit'}}>
-            <div style={{width:44,height:44,background:'linear-gradient(135deg,#6C5CE7,#00D2A0)',borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem'}}>⚕️</div>
+            <div style={{width:44,height:44,background:'linear-gradient(135deg,#1E40AF,#0D9488)',borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem'}}>⚕️</div>
             <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.4rem'}}>MedDrill</span>
           </Link>
           <h1 style={{fontSize:'1.8rem',marginBottom:8}}>Start free today</h1>
-          <p style={{color:'#A29BCC',fontSize:'0.95rem'}}>No credit card required</p>
+          <p style={{color:'#94A3B8',fontSize:'0.95rem'}}>No credit card required</p>
         </div>
         <div className="card" style={{padding:32}}>
           {['📚 AI lessons from your PDFs','⚔️ Battle mode & leaderboards','🔥 Streaks & gamification'].map(f=>(
-            <div key={f} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,color:'#A29BCC',fontSize:'0.88rem'}}>
-              <span style={{color:'#00D2A0'}}>✓</span>{f}
+            <div key={f} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,color:'#94A3B8',fontSize:'0.88rem'}}>
+              <span style={{color:'#10B981'}}>✓</span>{f}
             </div>
           ))}
           <div className="divider" />

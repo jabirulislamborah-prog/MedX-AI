@@ -49,7 +49,9 @@ function FlashcardsContent() {
       
       if (source === 'general') {
         let filtered = [...FLASHCARDS]
-        if (exam) {
+        // For general source, all flashcards are relevant — don't over-filter
+        // Only filter if exam matches a specific subject, otherwise show all
+        if (exam && exam !== 'usmle' && exam !== 'plab' && exam !== 'neet' && exam !== 'amc') {
           filtered = filtered.filter(c => (c.exam || '').toLowerCase().includes(exam.toLowerCase()) || (c.subject || '').toLowerCase().includes(exam.toLowerCase()))
         }
         filtered = filtered.sort(() => Math.random() - 0.5).slice(0, 20)

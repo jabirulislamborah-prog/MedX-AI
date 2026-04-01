@@ -10,8 +10,16 @@ export default function TutorPage() {
   const [loading, setLoading] = useState(false)
   const [convId, setConvId] = useState(null)
   const bottomRef = useRef()
+  const textareaRef = useRef()
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [messages])
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px'
+    }
+  }, [input])
 
   async function send() {
     if (!input.trim() || loading) return
@@ -47,8 +55,6 @@ export default function TutorPage() {
         
         buffer += decoder.decode(value, { stream: true })
         const lines = buffer.split('\n')
-        
-        // Keep the last incomplete line in the buffer
         buffer = lines.pop() || ''
 
         for (const line of lines) {
@@ -73,40 +79,126 @@ export default function TutorPage() {
   }
 
   return (
-    <div style={{display:'flex'}}>
+    <div style={{display:'flex', height:'100vh'}}>
       <Sidebar />
-      <main className="main-content" style={{display:'flex',flexDirection:'column',height:'100vh',padding:0}}>
-        {/* Header */}
-        <div style={{padding:'24px 32px',borderBottom:'1px solid #2D2654',display:'flex',alignItems:'center',gap:12}}>
-          <div style={{width:40,height:40,background:'linear-gradient(135deg,#6C5CE7,#00D2A0)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem'}}>🧠</div>
+      <main className="main-content" style={{display:'flex', flexDirection:'column', height:'100vh', padding:0, marginLeft:0}}>
+        
+        {/* Minimal Header */}
+        <div style={{
+          padding:'16px 24px', borderBottom:'1px solid #E5E7EB',
+          display:'flex', alignItems:'center', gap:12, background:'#F9FAFB',
+          position:'sticky', top:0, zIndex:10
+        }}>
+          <div style={{
+            width:36, height:36, background:'linear-gradient(135deg,#10B981,#059669)',
+            borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center',
+            fontSize:'1rem', color:'white', fontWeight:700
+          }}>🧠</div>
           <div>
-            <h1 style={{fontSize:'1.1rem',marginBottom:2}}>AI Clinical Tutor</h1>
-            <p style={{color:'#A29BCC',fontSize:'0.8rem'}}>Socratic method • Grounded in your materials • RAG-powered</p>
+            <h1 style={{fontSize:'1rem', fontWeight:600, color:'#111827', margin:0}}>AI Clinical Tutor</h1>
+            <p style={{color:'#6B7280', fontSize:'0.75rem', margin:0}}>Socratic method • Grounded in your materials</p>
           </div>
-          <div style={{marginLeft:'auto'}}><span className="badge badge-success">Online</span></div>
         </div>
 
-        {/* Messages */}
-        <div style={{flex:1,overflow:'auto',padding:'24px 32px',display:'flex',flexDirection:'column',gap:16}}>
+        {/* Messages Container - ChatGPT Style */}
+        <div style={{
+          flex:1, overflow:'auto', padding:'20px 24px',
+          display:'flex', flexDirection:'column', gap:0,
+          background:'white'
+        }}>
           {messages.map((m,i)=>(
-            <div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start'}}>
-              {m.role==='assistant'&&<div style={{width:32,height:32,background:'linear-gradient(135deg,#6C5CE7,#00D2A0)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.9rem',flexShrink:0,marginRight:10,alignSelf:'flex-end'}}>🧠</div>}
-              <div className={`chat-bubble ${m.role}`} style={{whiteSpace:'pre-wrap'}}>
-                {m.content}{m.role==='assistant'&&loading&&i===messages.length-1&&<span className="animate-pulse">▋</span>}
+            <div key={i} style={{
+              display:'flex', justifyContent:m.role==='user'?'flex-end':'flex-start',
+              padding:'4px 0'
+            }}>
+              <div style={{
+                display:'flex', gap:12, maxWidth:'85%',
+                flexDirection: m.role === 'user' ? 'row-reverse' : 'row',
+                alignItems:'flex-start'
+              }}>
+                {/* Avatar */}
+                {m.role === 'assistant' ? (
+                  <div style={{
+                    width:32, height:32, background:'#10B981',
+                    borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:'0.9rem', flexShrink:0
+                  }}>🧠</div>
+                ) : (
+                  <div style={{
+                    width:32, height:32, background:'#F3F4F6',
+                    borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:'0.9rem', flexShrink:0
+                  }}>👤</div>
+                )}
+                
+                {/* Message Bubble - ChatGPT Style */}
+                <div style={{
+                  padding:'12px 16px', borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                  fontSize:'0.95rem', lineHeight:1.6, whiteSpace:'pre-wrap',
+                  background: m.role === 'user' ? '#10B981' : '#F3F4F6',
+                  color: m.role === 'user' ? 'white' : '#1F2937',
+                  border: m.role === 'user' ? 'none' : '1px solid #E5E7EB'
+                }}>
+                  {m.content}{m.role==='assistant'&&loading&&i===messages.length-1&&<span style={{opacity:0.5}}> ▋</span>}
+                </div>
               </div>
             </div>
           ))}
           <div ref={bottomRef} />
         </div>
 
-        {/* Input */}
-        <div style={{padding:'20px 32px',borderTop:'1px solid #2D2654',display:'flex',gap:12}}>
-          <input className="input" placeholder="Ask about a concept, clinical scenario, or mechanism..." value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&!e.shiftKey&&send()} disabled={loading} style={{flex:1}} />
-          <button className="btn btn-primary" onClick={send} disabled={loading||!input.trim()}>
-            {loading?<span className="animate-spin" style={{display:'inline-block'}}>⟳</span>:'→'}
-          </button>
+        {/* Input Area - ChatGPT Style */}
+        <div style={{
+          padding:'16px 24px 24px', borderTop:'1px solid #E5E7EB',
+          background:'white'
+        }}>
+          <div style={{
+            display:'flex', gap:12, maxWidth:'800px', margin:'0 auto',
+            alignItems:'flex-end'
+          }}>
+            <textarea
+              ref={textareaRef}
+              className="input"
+              placeholder="Ask about a concept, clinical scenario, or mechanism..."
+              value={input}
+              onChange={e=>setInput(e.target.value)}
+              onKeyDown={e=>{
+                if (e.key==='Enter'&&!e.shiftKey) {
+                  e.preventDefault()
+                  send()
+                }
+              }}
+              disabled={loading}
+              rows={1}
+              style={{
+                flex:1, resize:'none', minHeight:'48px', maxHeight:'200px',
+                borderRadius:'12px', padding:'12px 16px',
+                background:'#F3F4F6', border:'1px solid #E5E7EB',
+                fontSize:'0.95rem'
+              }}
+            />
+            <button
+              onClick={send}
+              disabled={loading||!input.trim()}
+              style={{
+                width:44, height:44, borderRadius:12,
+                background: input.trim() ? '#10B981' : '#E5E7EB',
+                color: input.trim() ? 'white' : '#9CA3AF',
+                border:'none', cursor: input.trim() ? 'pointer' : 'not-allowed',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                fontSize:'1.1rem', transition:'all 0.2s'
+              }}
+            >
+              {loading ? '...' : '↑'}
+            </button>
+          </div>
+          <p style={{
+            textAlign:'center', padding:'8px 0 0', color:'#9CA3AF',
+            fontSize:'0.7rem', margin:'4px auto 0', maxWidth:'800px'
+          }}>
+            For educational purposes only. Not for clinical decision-making.
+          </p>
         </div>
-        <p style={{textAlign:'center',padding:'0 0 12px',color:'#6B6490',fontSize:'0.72rem'}}>For educational purposes only. Not for clinical decision-making.</p>
       </main>
     </div>
   )

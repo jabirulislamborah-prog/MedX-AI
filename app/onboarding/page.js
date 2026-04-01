@@ -11,7 +11,7 @@ const EXAM_OPTIONS = [
     title: 'USMLE Step 1',
     desc: 'Basic science foundations. Pass required for residency.',
     tag: 'Most Popular',
-    tagColor: '#6C5CE7'
+    tagColor: '#1E40AF'
   },
   {
     id: 'USMLE Step 2 CK',
@@ -26,7 +26,7 @@ const EXAM_OPTIONS = [
     title: 'PLAB 1',
     desc: 'UK GMC licensing exam for International Medical Graduates.',
     tag: 'IMG Pathway',
-    tagColor: '#00D2A0'
+    tagColor: '#0D9488'
   },
   {
     id: 'PLAB 2',
@@ -41,7 +41,7 @@ const EXAM_OPTIONS = [
     title: 'NEET-PG',
     desc: 'India\'s national post-graduate medical entrance exam.',
     tag: 'IMG Pathway',
-    tagColor: '#00D2A0'
+    tagColor: '#0D9488'
   },
   {
     id: 'AMC CAT',
@@ -106,7 +106,7 @@ export default function OnboardingPage() {
         <div style={{textAlign:'center',marginBottom:40}}>
           <Link href="/" style={{display:'inline-flex',alignItems:'center',gap:10,marginBottom:32,color:'inherit'}}>
             <div style={{width:40,height:40,background:'linear-gradient(135deg,#6C5CE7,#00D2A0)',borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem'}}>⚕️</div>
-            <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.2rem'}}>MedX AI</span>
+            <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.2rem'}}>MedDrill</span>
           </Link>
 
           {/* Step progress */}

@@ -17,9 +17,9 @@ const PLANS = [
     cta:'Start 7-Day Free Trial', ctaHref:'/signup?plan=pro', primary:true,
   },
   {
-    id:'annual', name:'Pro Annual', price:'$9', period:'/month',
-    tag:'Best Value 💎 Save 53%', color:'#00D2A0',
-    features:['Everything in Pro','Billed $108/year (save $120)','Early access to new features','Priority support','Export flashcards to Anki','Custom study reminders'],
+    id:'annual', name:'Pro Annual', price:'$9', period:'/year',
+    tag:'Best Value 💎 Save 75%', color:'#00D2A0',
+    features:['Everything in Pro','Billed $9/year (save $120)','Early access to new features','Priority support','Export flashcards to Anki','Custom study reminders'],
     cta:'Get Annual Plan', ctaHref:'/signup?plan=annual', primary:false,
   },
 ]
@@ -90,7 +90,7 @@ export default function PricingPage() {
         key: data.key,
         amount: data.amount,
         currency: data.currency,
-        name: 'MedX AI',
+        name: 'MedDrill',
         description: `Upgrade to ${planId.toUpperCase()} Plan`,
         order_id: data.order_id,
         handler: async function (response) {
@@ -154,39 +154,39 @@ export default function PricingPage() {
   }
 
   return (
-    <div style={{minHeight:'100vh',background:'#0F0A1A',color:'#F8F7FF',padding:'80px 24px'}}>
+    <div style={{minHeight:'100vh',background:'#0F172A',color:'#F8FAFC',padding:'80px 24px'}}>
       <div className="container" style={{maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:40}}>
           <span className="badge badge-primary" style={{marginBottom:16,display:'inline-flex'}}>Pricing</span>
           <h1 style={{marginBottom:16}}>Simple, <span className="text-gradient">honest pricing</span></h1>
-          <p style={{color:'#A29BCC',fontSize:'1.1rem',maxWidth:500,margin:'0 auto'}}>
+          <p style={{color:'#94A3B8',fontSize:'1.1rem',maxWidth:500,margin:'0 auto'}}>
             No predatory 2-year auto-renewals. No surprise paywalls. Cancel anytime.
           </p>
         </div>
         
         <div style={{display:'flex',justifyContent:'center',gap:12,marginBottom:48}}>
           <div style={{background:'rgba(255,255,255,0.05)',padding:6,borderRadius:12,display:'inline-flex'}}>
-            <button onClick={() => setGateway('razorpay')} style={{padding:'10px 24px',borderRadius:8,border:'none',background:gateway==='razorpay'?'#6C5CE7':'transparent',color:gateway==='razorpay'?'#FFF':'#A29BCC',fontWeight:600,transition:'all 0.2s'}}>💳 Card / UPI</button>
-            <button onClick={() => setGateway('paypal')} style={{padding:'10px 24px',borderRadius:8,border:'none',background:gateway==='paypal'?'#F39C12':'transparent',color:gateway==='paypal'?'#FFF':'#A29BCC',fontWeight:600,transition:'all 0.2s'}}>🅿️ PayPal</button>
+            <button onClick={() => setGateway('razorpay')} style={{padding:'10px 24px',borderRadius:8,border:'none',background:gateway==='razorpay'?'#1E40AF':'transparent',color:gateway==='razorpay'?'#FFF':'#94A3B8',fontWeight:600,transition:'all 0.2s'}}>💳 Card / UPI</button>
+            <button onClick={() => setGateway('paypal')} style={{padding:'10px 24px',borderRadius:8,border:'none',background:gateway==='paypal'?'#F59E0B':'transparent',color:gateway==='paypal'?'#FFF':'#94A3B8',fontWeight:600,transition:'all 0.2s'}}>🅿️ PayPal</button>
           </div>
         </div>
 
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))',gap:24,margin:'0 auto'}}>
           {PLANS.map(p=>(
-            <div key={p.id} className="card" style={{border:`2px solid ${p.primary?p.color:'#2D2654'}`,padding:32,position:'relative',background:p.primary?'rgba(108,92,231,0.05)':'#1A1432',height:'100%',display:'flex',flexDirection:'column'}}>
-              {p.tag&&<div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',background:p.color,color:p.primary?'white':'#0F0A1A',padding:'4px 16px',borderRadius:20,fontSize:'0.75rem',fontWeight:700,whiteSpace:'nowrap'}}>{p.tag}</div>}
+              <div key={p.id} className="card" style={{border:`2px solid ${p.primary?p.color:'#334155'}`,padding:32,position:'relative',background:p.primary?'rgba(30,64,175,0.08)':'#1E293B',height:'100%',display:'flex',flexDirection:'column'}}>
+              {p.tag&&<div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',background:p.color,color:p.primary?'white':'#0F172A',padding:'4px 16px',borderRadius:20,fontSize:'0.75rem',fontWeight:700,whiteSpace:'nowrap'}}>{p.tag}</div>}
               <div style={{marginBottom:24}}>
-                <div style={{fontSize:'0.85rem',color:'#A29BCC',marginBottom:8,textTransform:'uppercase',letterSpacing:'0.05em'}}>{p.name}</div>
+                <div style={{fontSize:'0.85rem',color:'#94A3B8',marginBottom:8,textTransform:'uppercase',letterSpacing:'0.05em'}}>{p.name}</div>
                 <div style={{display:'flex',alignItems:'baseline',gap:4}}>
                   <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'2.8rem',color:p.color}}>{p.price}</span>
-                  <span style={{color:'#6B6490'}}>{p.period}</span>
+                  <span style={{color:'#64748B'}}>{p.period}</span>
                 </div>
               </div>
               <div style={{marginBottom:32,display:'flex',flexDirection:'column',gap:10,flexGrow:1}}>
                 {p.features.map(f=>(
                   <div key={f} style={{display:'flex',gap:10,fontSize:'0.88rem'}}>
                     <span style={{color:p.color,flexShrink:0}}>✓</span>
-                    <span style={{color:'#A29BCC'}}>{f}</span>
+                    <span style={{color:'#94A3B8'}}>{f}</span>
                   </div>
                 ))}
               </div>
@@ -204,14 +204,14 @@ export default function PricingPage() {
         </div>
 
         {/* Guarantee */}
-        <div style={{textAlign:'center',marginTop:64,color:'#A29BCC'}}>
+        <div style={{textAlign:'center',marginTop:64,color:'#94A3B8'}}>
           <div style={{fontSize:'1.5rem',marginBottom:8}}>🛡️</div>
           <p style={{fontWeight:600,marginBottom:4}}>30-Day Money-Back Guarantee</p>
           <p style={{fontSize:'0.88rem',maxWidth:500,margin:'0 auto'}}>Not satisfied? Full refund, no questions asked. Because we hate predatory subscriptions too.</p>
         </div>
 
         <div style={{textAlign:'center',marginTop:48}}>
-          <Link href="/dashboard" style={{color:'#8B7CF6',fontSize:'0.9rem'}}>← Back to Dashboard</Link>
+          <Link href="/dashboard" style={{color:'#3B82F6',fontSize:'0.9rem'}}>← Back to Dashboard</Link>
         </div>
       </div>
     </div>

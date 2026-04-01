@@ -1,4 +1,6 @@
 import './globals.css'
+import AnalyticsProvider from '@/components/AnalyticsProvider'
+// import { Analytics } from '@vercel/analytics/react'
 
 export const metadata = {
   title: 'MedDrill — The Duolingo for Medicine',
@@ -13,7 +15,12 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body>{children}</body>
+      <body>
+        <AnalyticsProvider>
+          {children}
+          {/* <Analytics /> */}
+        </AnalyticsProvider>
+      </body>
     </html>
   )
 }

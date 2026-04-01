@@ -2,10 +2,24 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { generateJSON, generateEmbedding } from '@/lib/ai/client'
 import { LESSON_PROMPT, FLASHCARD_PROMPT, QBANK_PROMPT } from '@/lib/ai/prompts'
+import { validateFileUpload, validateString, sanitizeInput } from '@/lib/security/validation'
+import { uploadLimiter } from '@/lib/security/rate-limit'
 
 export const maxDuration = 300
 
+function withTimeout(promise, ms, errorMsg) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg)), ms))
+  ])
+}
+
+// Apply rate limiting
 export async function POST(request) {
+  // Check rate limit
+  const rateLimitResult = await uploadLimiter(request)
+  if (rateLimitResult) return rateLimitResult
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -13,7 +27,25 @@ export async function POST(request) {
 
     const formData = await request.formData()
     const file = formData.get('file')
-    const subject = formData.get('subject') || 'Medical Content'
+    const subjectInput = formData.get('subject') || 'Medical Content'
+
+    // Validate file upload
+    const fileValidation = validateFileUpload(file)
+    if (!fileValidation.valid) {
+      return Response.json({ error: fileValidation.error }, { status: 400 })
+    }
+
+    // Validate and sanitize subject
+    const subjectValidation = validateString(subjectInput, {
+      maxLength: 200,
+      allowSpecialChars: false,
+      name: 'Subject'
+    })
+    if (!subjectValidation.valid) {
+      return Response.json({ error: subjectValidation.error }, { status: 400 })
+    }
+    
+    const subject = sanitizeInput(subjectValidation.sanitized)
 
     if (!file) return Response.json({ error: 'No file provided' }, { status: 400 })
 
@@ -38,8 +70,10 @@ export async function POST(request) {
       }
     }
 
-    // Upload file to Supabase Storage
-    const fileName = `${user.id}/${Date.now()}_${file.name}`
+    // Secure filename - use sanitized name with timestamp
+    const timestamp = Date.now()
+    const sanitizedName = fileValidation.sanitizedName
+    const fileName = `${user.id}/${timestamp}_${sanitizedName}`
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const mimeType = file.type || 'application/pdf'
@@ -66,7 +100,7 @@ export async function POST(request) {
       try {
         console.log('[Process] Parsing PDF...')
         const { default: pdfParse } = await import('pdf-parse')
-        const pdfData = await pdfParse(buffer)
+        const pdfData = await withTimeout(pdfParse(buffer), 45000, 'PDF parsing timed out after 45s')
         extractedText = pdfData.text || ''
         console.log('[Process] PDF parsed, text length:', extractedText.length)
       } catch (e) {
@@ -76,16 +110,15 @@ export async function POST(request) {
       try {
         console.log('[Process] Parsing DOCX...')
         const mammoth = await import('mammoth')
-        const result = await mammoth.default.extractRawText({ buffer })
+        const result = await withTimeout(mammoth.default.extractRawText({ buffer }), 30000, 'DOCX parsing timed out')
         extractedText = result.value || ''
         console.log('[Process] DOCX parsed, text length:', extractedText.length)
       } catch (e) {
         console.error('[Process] DOCX parse error:', e)
-        // Fallback to officeparser
         try {
           const officeparser = await import('officeparser')
         const parse = officeparser.parseOffice || officeparser.default?.parseOffice || officeparser.default
-        extractedText = await parse(buffer)
+        extractedText = await withTimeout(parse(buffer), 30000, 'DOCX fallback timed out')
           console.log('[Process] DOCX fallback (officeparser), text length:', extractedText.length)
         } catch (e2) {
           console.error('[Process] DOCX fallback also failed:', e2)
@@ -96,7 +129,7 @@ export async function POST(request) {
         console.log('[Process] Parsing PPTX with officeparser...')
         const officeparser = await import('officeparser')
         const parse = officeparser.parseOffice || officeparser.default?.parseOffice || officeparser.default
-        extractedText = await parse(buffer)
+        extractedText = await withTimeout(parse(buffer), 30000, 'PPTX parsing timed out')
         console.log('[Process] PPTX parsed, text length:', extractedText.length)
       } catch (e) {
         console.error('[Process] PPTX parse error:', e)
@@ -120,12 +153,11 @@ export async function POST(request) {
       extractedText = buffer.toString('utf-8')
       console.log('[Process] Text file parsed, text length:', extractedText.length)
     } else {
-      // Universal fallback: try officeparser for any Office format
       try {
         console.log('[Process] Trying officeparser as universal fallback...')
         const officeparser = await import('officeparser')
         const parse = officeparser.parseOffice || officeparser.default?.parseOffice || officeparser.default
-        extractedText = await parse(buffer)
+        extractedText = await withTimeout(parse(buffer), 30000, 'Office parser timed out')
         console.log('[Process] Officeparser fallback, text length:', extractedText.length)
       } catch {
         try {
@@ -187,12 +219,31 @@ export async function POST(request) {
       throw new Error('Not enough text extracted from the document to generate questions. Please upload a PDF or document with readable text content.')
     }
 
-    // Generate lessons via Groq
-    console.log('[Process] Generating lessons...')
+    // Generate content in parallel for faster processing
+    console.log('[Process] Generating content in parallel...')
     let lessonsGenerated = 0
+    let flashcardsGenerated = 0
+    let questionsGenerated = 0
+
     try {
-      const lessonData = await generateJSON(LESSON_PROMPT(contentForGeneration, subject))
-      console.log('[Process] Lessons generated:', JSON.stringify(lessonData))
+      const [lessonData, fcData, qbData] = await Promise.all([
+        generateJSON(LESSON_PROMPT(contentForGeneration, subject)).catch(e => {
+          console.error('Lesson gen error:', e.message)
+          return { lessons: [] }
+        }),
+        generateJSON(FLASHCARD_PROMPT(contentForGeneration)).catch(e => {
+          console.error('Flashcard gen error:', e.message)
+          return { flashcards: [], cards: [] }
+        }),
+        generateJSON(QBANK_PROMPT(contentForGeneration)).catch(e => {
+          console.error('QBank gen error:', e.message)
+          return { questions: [], qbank: [] }
+        })
+      ])
+
+      console.log('[Process] All generation calls completed')
+
+      // Process lessons
       for (let li = 0; li < (lessonData.lessons || []).length; li++) {
         const l = lessonData.lessons[li]
         const { data: lesson } = await admin.from('lessons').insert({
@@ -212,14 +263,8 @@ export async function POST(request) {
         }
         lessonsGenerated++
       }
-    } catch (e) { console.error('Lesson gen error:', e.message) }
 
-    // Generate flashcards via Groq
-    console.log('[Process] Generating flashcards...')
-    let flashcardsGenerated = 0
-    try {
-      const fcData = await generateJSON(FLASHCARD_PROMPT(contentForGeneration))
-      console.log('[Process] Flashcards generated:', JSON.stringify(fcData).substring(0, 150))
+      // Process flashcards
       const fcArr = fcData.flashcards || fcData.cards || []
       if (fcArr.length) {
         const toInsert = fcArr.map((fc, i) => ({
@@ -232,14 +277,8 @@ export async function POST(request) {
         if (fcErr) throw new Error('Flashcard Insert Error: ' + fcErr.message)
         flashcardsGenerated = fcArr.length
       }
-    } catch (e) { console.error('Flashcard gen error:', e.message) }
 
-    // Generate QBank via Groq
-    console.log('[Process] Generating QBank questions...')
-    let questionsGenerated = 0
-    try {
-      const qbData = await generateJSON(QBANK_PROMPT(contentForGeneration))
-      console.log('[Process] QBank generated:', JSON.stringify(qbData).substring(0, 150))
+      // Process QBank
       const qbArr = qbData.questions || qbData.qbank || []
       if (qbArr.length) {
         const toInsert = qbArr.map((q, i) => {
@@ -262,7 +301,9 @@ export async function POST(request) {
         if (qbErr) throw new Error('QBank Insert Error: ' + qbErr.message)
         questionsGenerated = qbArr.length
       }
-    } catch (e) { console.error('QBank gen error:', e.message) }
+    } catch (e) {
+      console.error('Content generation error:', e.message)
+    }
 
     console.log('[Process] Summary - Lessons:', lessonsGenerated, 'Flashcards:', flashcardsGenerated, 'Questions:', questionsGenerated)
     

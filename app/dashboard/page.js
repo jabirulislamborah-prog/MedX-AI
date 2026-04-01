@@ -11,12 +11,12 @@ const DAILY_GOALS = [
 ]
 
 const ACTIONS = [
-  { href: '/qbank', icon: '🎯', label: 'QBank Drill', xp: 15, color: '#6C5CE7', bg: 'rgba(108,92,231,0.15)', desc: 'Board-style questions' },
+  { href: '/qbank', icon: '🎯', label: 'QBank Drill', xp: 15, color: '#1E40AF', bg: 'rgba(30,64,175,0.15)', desc: 'Board-style questions' },
   { href: '/simulate', icon: '🔬', label: 'Exam Sim', xp: 25, color: '#3B82F6', bg: 'rgba(59,130,246,0.15)', desc: 'Timed blocks' },
-  { href: '/flashcards', icon: '🃏', label: 'Flashcards', xp: 10, color: '#00D2A0', bg: 'rgba(0,210,160,0.15)', desc: 'Spaced repetition' },
-  { href: '/battle', icon: '⚔️', label: 'Battle', xp: 20, color: '#FDCB6E', bg: 'rgba(253,203,110,0.15)', desc: 'PvP duels' },
-  { href: '/tutor', icon: '🧠', label: 'AI Tutor', xp: 10, color: '#A855F7', bg: 'rgba(168,85,247,0.15)', desc: 'Ask anything' },
-  { href: '/upload', icon: '📤', label: 'Upload', xp: 5, color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)', desc: 'New material' },
+  { href: '/flashcards', icon: '🃏', label: 'Flashcards', xp: 10, color: '#0D9488', bg: 'rgba(13,148,136,0.15)', desc: 'Spaced repetition' },
+  { href: '/battle', icon: '⚔️', label: 'Battle', xp: 20, color: '#F59E0B', bg: 'rgba(245,158,11,0.15)', desc: 'PvP duels' },
+  { href: '/tutor', icon: '🧠', label: 'AI Tutor', xp: 10, color: '#7C3AED', bg: 'rgba(124,58,237,0.15)', desc: 'Ask anything' },
+  { href: '/upload', icon: '📤', label: 'Upload', xp: 5, color: '#EF4444', bg: 'rgba(239,68,68,0.15)', desc: 'New material' },
 ]
 
 export default async function DashboardPage() {

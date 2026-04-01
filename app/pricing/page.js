@@ -6,19 +6,19 @@ import { useRouter } from 'next/navigation'
 const PLANS = [
   {
     id:'free', name:'Free', price:'$0', period:'forever',
-    tag:'', color:'#2D2654',
+    tag:'', color:'#64748B',
     features:['5 PDF uploads/month','AI lesson generation','100 QBank questions','50 flashcards','Basic leaderboard','1 battle/day'],
     cta:'Get Started Free', ctaHref:'/signup', primary:false,
   },
   {
-    id:'pro', name:'Pro', price:'$19', period:'/month',
-    tag:'Most Popular 🔥', color:'#6C5CE7',
+    id:'pro', name:'Pro Monthly', price:'$19', period:'/month',
+    tag:'Most Popular 🔥', color:'#3B82F6',
     features:['Unlimited PDF uploads','Unlimited lessons & QBank','Unlimited flashcards','Priority AI processing','Full leaderboard & battles','Study plan recommendations','Confidence score tracking','Weekly progress reports','Daily challenges'],
     cta:'Start 7-Day Free Trial', ctaHref:'/signup?plan=pro', primary:true,
   },
   {
     id:'annual', name:'Pro Annual', price:'$9', period:'/year',
-    tag:'Best Value 💎 Save 75%', color:'#00D2A0',
+    tag:'Best Value 💎 Save 53%', color:'#10B981',
     features:['Everything in Pro','Billed $9/year (save $120)','Early access to new features','Priority support','Export flashcards to Anki','Custom study reminders'],
     cta:'Get Annual Plan', ctaHref:'/signup?plan=annual', primary:false,
   },
@@ -194,8 +194,14 @@ export default function PricingPage() {
               <button 
                 onClick={() => handleSubscribe(p.id)} 
                 disabled={loadingPlan === p.id}
-                className={`btn ${p.primary?'btn-primary':'btn-ghost'}`} 
-                style={{width:'100%',justifyContent:'center',background:p.primary?undefined:(p.id==='annual'?p.color:undefined),color:p.id==='annual'?'#0F0A1A':undefined}}
+                style={{
+                  width: '100%', padding: '16px', borderRadius: 14, border: 'none',
+                  background: p.primary ? '#3B82F6' : p.id === 'annual' ? '#10B981' : 'transparent',
+                  color: p.primary ? 'white' : p.id === 'annual' ? '#0F172A' : '#94A3B8',
+                  fontSize: '1rem', fontWeight: 600,
+                  cursor: loadingPlan === p.id ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s'
+                }}
               >
                 {loadingPlan === p.id ? 'Loading Checkout...' : p.cta}
               </button>
